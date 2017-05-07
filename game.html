@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="js/canvasengine-1.3.2.all.min.js"></script>
+    <title>Title</title>
+</head>
+<body>
+    <canvas id="game_box" width="800" height="600"></canvas>
+    <canvas id="bg" width="100" height="100"></canvas>
+    <script type="text/javascript">
+        var canvas = CE.defines("game_box").
+            extend(Scrolling).
+            extend(Spritesheet).
+            extend(Animation).
+            extend(Window).
+            ready(function () {
+            canvas.Scene.call("MyScene");
+        });
+
+        canvas.Scene.new({
+            name:"MyScene",
+            materials:{
+                images:{
+                    img_id:"./imgs/111.png",
+                    img_222:"./imgs/222.png",
+                    img_Duck:"./imgs/Duck.png",
+                    img_bird:"./imgs/Bird.png",
+                    img_sky:"./imgs/sky.jpg",
+                    img_ball:"./imgs/ball.png",
+                    popbox_bg:"./imgs/border_window.png",
+                    male:"./imgs/ArcherMale1.png"
+                }
+            },
+            preload:function () {
+
+            },
+            ready:function (stage) {
+
+                //滚屏动画
+                var map,animation;
+                this.scrolling = canvas.Scrolling.new(this,1,1);
+                this.bird = this.createElement();
+                this.bird.y = 200;
+                this.bird.on("click",function (e) {
+                    this.opacity = this.opacity < 1 ? 1 : 0.5;
+                });
+                animation = canvas.Animation.new({
+                    images:"img_bird",
+                    animations:{
+                        walk:{
+                            frames:[1,3],
+                            size:{
+                                width:320/5,
+                                height:64
+                            },
+                            frequence:5
+                        }
+                    }
+                });
+                animation.add(this.bird);
+                animation.play("walk","loop");
+                this.scrolling.setMainElement(this.bird);
+                map = this.createElement();
+                map.drawImage("img_sky");
+                map.append(this.bird);
+                map.y = 300;
+                this.scrolling.addScroll({
+                    element:map,
+                    speed:1,
+                    block:true,
+                    width:1200,
+                    height:300
+                });
+                stage.append(map);
+
+
+
+                this.element = this.createElement();
+                this.element.drawImage("img_id");
+                stage.append(this.element);
+                var role = this.createElement();
+                role.x = 100;
+                role.y = 100;
+                role.opacity=0.4;
+                role.drawImage("img_222");
+                stage.append(role);
+                var time = canvas.Timeline.new(role);
+//                time.add({x:200},60).loop();
+                time.to({x:50,y:50,opacity:1,scaleX:2,scaleY:2},100,Ease.easeInOutElastic).call();
+
+                var spritesheet = canvas.Spritesheet.new("img_Duck");
+                spritesheet.set({
+                    grid:[{
+                        size:[1,3],
+                        tile:[60,50],
+                        set:["play"]
+                    }]
+                });
+                this.duck = this.createElement(60,50);
+                this.duck.x = 200;
+                this.duck.y = 300;
+                this.duck.setOriginPoint("middle");
+                spritesheet.pattern(this.duck,"play");
+                this.duck.fillRect(0,0,60,50);
+//                var _time = canvas.Timeline.new(duck);
+//                _time.to({roation:180},100,Ease.easeOutElastic).call();
+                stage.append(this.duck);
+
+                //ball
+                var ball = this.createElement(64,64);
+                ball.drawImage("img_ball");
+                ball.setOriginPoint("middle");
+                var timeline = canvas.Timeline.new(ball);
+                timeline.to({x:300,rotation:260},60*3,Ease.easeOutElastic).call();
+                stage.append(ball);
+
+                //弹框
+                var _window,content,
+                    text = this.createElement();
+                _window = canvas.Window.new(this,400,150,"popbox_bg");
+                _window.setBackground("#C8B979",7,0.5);
+                _window.position("middle");
+                content = _window.getContent();
+                text.fillStyle = "black";
+                text.font = "15px Arial";
+                text.fillText("Window Text",0,0);
+                text.y = 10;
+                content.append(text);
+                _window.open(stage);
+
+                //角色动画
+                var male = this.createElement(),
+                    animation = canvas.Animation.new({
+                        images:"male",
+                        animations:{
+                            walk:{
+                                frames:[0,10],
+                                size:{
+                                    width:984/11,
+                                    height:334/3
+                                },
+                                frequence:5
+                            }
+                        }
+                    });
+                animation.add(male);
+                animation.play("walk","loop");
+                stage.append(male);
+
+            },
+            render:function (stage) {
+                this.element.x += 1;
+                this.duck.rotation+=1;
+                this.bird.x += 1;
+                if(this.bird.x > 1200)
+                    this.bird.x = 0;
+                this.scrolling.update();
+                stage.refresh();
+            },
+            exit:function (stage) {
+                
+            }
+        });
+
+        /*var game = CE.defines("bg").
+            extend(Animation).
+            extend(Scrolling).
+            ready(function () {
+                game.Scene.call("game_bg");
+        });
+        game.Scene.new({
+            name:"game_bg",
+            materials:{
+                images:{
+                    img_dd:"./imgs/Duck.png"
+                }
+            },
+            ready:function (stage) {
+                var dd = this.createElement();
+                dd.drawImage("img_dd");
+                stage.append(dd);
+            },
+            render:function (stage) {
+                stage.refresh();
+            }
+        });*/
+    </script>
+</body>
+</html>
